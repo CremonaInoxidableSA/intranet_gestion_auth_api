@@ -1,34 +1,9 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from config.db import Base
-from .permisos import Permisos
-
-
-# Association tables (moved here from models/associations.py)
-usuarios_roles = Table(
-    "usuarios_roles",
-    Base.metadata,
-    Column("usuario_id", Integer, ForeignKey("usuarios.id", ondelete="CASCADE"), primary_key=True),
-    Column("rol_id", Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
-)
-
-
-rol_modulos = Table(
-    "rol_modulos",
-    Base.metadata,
-    Column("rol_id", Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
-    Column("modulo_id", Integer, ForeignKey("modulos.id", ondelete="CASCADE"), primary_key=True),
-    Column("permiso_id", Integer, ForeignKey("permisos.id", ondelete="CASCADE"), nullable=True),
-)
-
-
-rol_submodulos = Table(
-    "rol_submodulos",
-    Base.metadata,
-    Column("rol_id", Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True),
-    Column("submodulo_id", Integer, ForeignKey("submodulos.id", ondelete="CASCADE"), primary_key=True),
-    Column("permiso_id", Integer, ForeignKey("permisos.id", ondelete="CASCADE"), nullable=True),
-)
+from .usuarios_roles import usuarios_roles
+from .rol_modulos import rol_modulos
+from .rol_submodulos import rol_submodulos
 
 
 class Roles(Base):

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from config.db import Base
-from .roles import rol_submodulos
+from .rol_submodulos import rol_submodulos
 
 
 class Submodulos(Base):

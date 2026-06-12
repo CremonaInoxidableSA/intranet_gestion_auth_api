@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from config.db import Base
-from .roles import rol_modulos
+from .rol_modulos import rol_modulos
 
 
 class Modulos(Base):

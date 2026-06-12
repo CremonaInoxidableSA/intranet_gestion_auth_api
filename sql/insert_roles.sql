@@ -1,4 +1,4 @@
-INSERT INTO roles (rol, acceso_modulos, acceso_submodulos) VALUES
-("superadmin", '[1,2,3]', '[1,2,3]'),
-("admin-produccion", '[1]', '[1,2,3,4,5]'),
-("encargado-produccion", '[1]', '[1]');
+INSERT INTO roles (id, nombre) VALUES
+ (1, 'superadmin'),
+ (2, 'admin-produccion'),
+ (3, 'encargado-produccion');
