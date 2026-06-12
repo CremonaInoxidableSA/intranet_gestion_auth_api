@@ -27,6 +27,7 @@ import os
 
 from dotenv import load_dotenv
 from bootstrap import bootstrap
+from urllib.parse import quote_plus
 
 from models.usuarios import Usuarios
 from models.roles import Roles
@@ -43,7 +44,7 @@ with create_engine(
 
 db.Base.metadata.drop_all(bind=db.engine)
 db.Base.metadata.create_all(bind=db.engine)
-cargar_datos_iniciales()
+#cargar_datos_iniciales()
 
 bootstrap()
 

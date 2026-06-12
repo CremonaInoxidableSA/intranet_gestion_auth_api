@@ -1,6 +1,7 @@
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from config.db import Base
+from .permisos import Permisos
 
 
 # Association tables (moved here from models/associations.py)

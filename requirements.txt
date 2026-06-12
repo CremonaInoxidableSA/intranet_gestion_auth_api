@@ -10,3 +10,5 @@ cryptography
 requests
 aiohttp
 itsdangerous
+sqlalchemy
+pymysql
