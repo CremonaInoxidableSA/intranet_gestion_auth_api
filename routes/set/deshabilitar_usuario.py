@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import TypedDict, Optional
 from database import get_connection
-from auth import get_current_user, TokenUser
 
 router = APIRouter(tags=["usuarios"])
 
@@ -11,43 +10,70 @@ class ApiResponse(BaseModel):
     message: Optional[str] = None
 
 class UsuarioRow(TypedDict):
-    rol: str
+    id: int
     habilitado: int
+    rol_nombre: str
 
 class DeshabilitarUsuario(BaseModel):
-    username: str
+    current_user_id: int
+    usuario_id: int
 
 @router.post("/deshabilitar_usuario", response_model=ApiResponse)
-def deshabilitar_usuario(data: DeshabilitarUsuario, current_user: TokenUser = Depends(get_current_user)) -> ApiResponse:
-    # Verificar permisos: usuarios con rol 'user' no pueden deshabilitar usuarios
-    if not current_user.get("rol") or current_user.get("rol") == "user":
-        raise HTTPException(status_code=403, detail="No tenés permiso para modificar usuarios")
-
+def deshabilitar_usuario(data: DeshabilitarUsuario) -> ApiResponse:
+    # Verificar permisos: consultar si current_user tiene puede_habilitar = True
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # Verificar usuario
     cursor.execute(
-        "SELECT rol, habilitado FROM Usuarios WHERE username = %s",
-        (data.username,)
+        """SELECT r.puede_habilitar 
+           FROM usuarios u
+           JOIN usuarios_roles ur ON u.id = ur.usuario_id
+           JOIN roles r ON ur.rol_id = r.id
+           WHERE u.id = %s
+           LIMIT 1""",
+        (data.current_user_id,)
+    )
+    permisos = cursor.fetchone()
+
+    if not permisos or not permisos.get("puede_habilitar"):
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=403, detail="No tenés permiso para modificar usuarios")
+
+    # Verificar usuario a deshabilitar
+    cursor.execute(
+        """SELECT u.id, u.habilitado, r.nombre as rol_nombre
+           FROM usuarios u
+           LEFT JOIN usuarios_roles ur ON u.id = ur.usuario_id
+           LEFT JOIN roles r ON ur.rol_id = r.id
+           WHERE u.id = %s
+           LIMIT 1""",
+        (data.usuario_id,)
     )
     usuario: UsuarioRow = cursor.fetchone()  # type: ignore
 
     if not usuario:
+        cursor.close()
+        conn.close()
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    if usuario["rol"] == "superadmin":
+    if usuario["rol_nombre"] == "superadmin":
+        cursor.close()
+        conn.close()
         raise HTTPException(
             status_code=403,
             detail="No se puede deshabilitar un superadmin"
         )
 
     if usuario["habilitado"] == 0:
+        cursor.close()
+        conn.close()
         return ApiResponse(success=True, message="Usuario ya estaba deshabilitado")
 
+    # Actualizar usuario
     cursor.execute(
-        "UPDATE Usuarios SET habilitado = 0 WHERE username = %s",
-        (data.username,)
+        "UPDATE usuarios SET habilitado = 0 WHERE id = %s",
+        (data.usuario_id,)
     )
   
     conn.commit()
