@@ -3,6 +3,32 @@
 
 ---
 
+## ARCHIVOS A MODIFICAR CUANDO SE IMPLEMENTE JWT
+
+Estos archivos contienen `current_user_id` como parámetro JSON que debe ser reemplazado por inyección del token JWT:
+
+1. **routes/set/deshabilitar_usuario.py**
+   - Cambiar: `current_user_id: int` en `DeshabilitarUsuario`
+   - Por: `current_user: TokenUser = Depends(get_current_user)` en la función
+   - Usar: `current_user.get("id")` en lugar de `data.current_user_id`
+
+2. **routes/set/habilitar_usuario.py**
+   - Cambiar: `current_user_id: int` en `HabilitarUsuario`
+   - Por: `current_user: TokenUser = Depends(get_current_user)` en la función
+   - Usar: `current_user.get("id")` en lugar de `data.current_user_id`
+
+3. **routes/produccion/crear_usuario_produccion.py**
+   - Cambiar: `current_user_id: int` en `CrearUsuarioProduccion`
+   - Por: `current_user: TokenUser = Depends(get_current_user)` en la función
+   - Usar: `current_user.get("id")` en lugar de `data.current_user_id`
+
+4. **routes/get/data_usuarios.py**
+   - Cambiar: `current_user_id: int` en `DatosUsuarioRequest`
+   - Por: `current_user: TokenUser = Depends(get_current_user)` en la función
+   - Usar: `current_user.get("id")` en lugar de `data.current_user_id`
+
+---
+
 ## ACCESOS PRODUCCION
 
 ## DESHABILITAR USUARIO
@@ -103,6 +129,25 @@ INSERT INTO usuarios_roles (usuario_id, rol_id)
 VALUES ({usuario_id}, {rol_id})
 ```
 **Nota:** El `{usuario_id}` es el ID retornado del INSERT anterior
+
+---
+
+## OBTENER DATOS DE USUARIO
+
+### 1. Obtener datos del usuario
+```sql
+SELECT u.id, u.email, u.username, u.nombre, u.apellido, u.habilitado, u.legajo, u.dni, u.cambiar_contra
+FROM usuarios u
+WHERE u.id = {usuario_id}
+```
+
+### 2. Obtener roles del usuario
+```sql
+SELECT r.nombre
+FROM roles r
+JOIN usuarios_roles ur ON r.id = ur.rol_id
+WHERE ur.usuario_id = {usuario_id}
+```
 
 ---
 
