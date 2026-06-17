@@ -23,6 +23,8 @@ from routes.auth.reset_password import router as reset_password_router
 
 from routes.bootstrap import router as bootstrap_router
 
+from routes.produccion.accesos_produccion import router as accesos_produccion_router
+
 import os
 
 from dotenv import load_dotenv
@@ -74,6 +76,7 @@ app.include_router(cambiar_pass_router)
 app.include_router(reset_password_router)
 app.include_router(bootstrap_router)
 app.include_router(recuperacion_check_router)
+app.include_router(accesos_produccion_router)
 
 @app.get("/")
 def hola():

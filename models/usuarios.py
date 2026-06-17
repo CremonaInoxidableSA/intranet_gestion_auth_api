@@ -9,7 +9,7 @@ class Usuarios(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String(255), nullable=True, unique=True, index=True)
-    usuario = Column(String(100), nullable=True, unique=True, index=True)
+    username = Column(String(100), nullable=True, unique=True, index=True)
     nombre = Column(String(100), nullable=False)
     apellido = Column(String(100), nullable=False)
     password_hash = Column(String(255), nullable=True)
