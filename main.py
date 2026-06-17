@@ -13,8 +13,6 @@ from routes.set.deshabilitar_usuario import router as deshabilitar_usuario_route
 from routes.set.habilitar_usuario import router as habilitar_usuario_router
 from routes.set.editar_usuarios import router as editar_usuario_router
 
-from routes.delete.eliminar_usuario import router as eliminar_usuario_router
-
 from routes.create.crear_usuario import router as crear_usuario_router
 
 from routes.auth.login import router as login_router
@@ -24,6 +22,7 @@ from routes.auth.reset_password import router as reset_password_router
 from routes.bootstrap import router as bootstrap_router
 
 from routes.produccion.accesos_produccion import router as accesos_produccion_router
+from routes.produccion.crear_usuario_produccion import router as crear_usuario_produccion_router
 
 import os
 
@@ -69,7 +68,6 @@ app.include_router(data_usuarios_router)
 app.include_router(deshabilitar_usuario_router)
 app.include_router(habilitar_usuario_router)
 app.include_router(editar_usuario_router)
-app.include_router(eliminar_usuario_router)
 app.include_router(crear_usuario_router)
 app.include_router(login_router)
 app.include_router(cambiar_pass_router)
@@ -77,6 +75,7 @@ app.include_router(reset_password_router)
 app.include_router(bootstrap_router)
 app.include_router(recuperacion_check_router)
 app.include_router(accesos_produccion_router)
+app.include_router(crear_usuario_produccion_router)
 
 @app.get("/")
 def hola():
