@@ -11,9 +11,8 @@ from routes.get.recuperacion_check import router as recuperacion_check_router
 
 from routes.set.deshabilitar_usuario import router as deshabilitar_usuario_router
 from routes.set.habilitar_usuario import router as habilitar_usuario_router
-from routes.set.editar_usuarios import router as editar_usuario_router
 
-from routes.create.crear_usuario import router as crear_usuario_router
+from routes.gestion_usuarios.crear_o_editar_usuario import router as crear_o_editar_usuario_router
 
 from routes.auth.login import router as login_router
 from routes.auth.cambiar_pass import router as cambiar_pass_router
@@ -38,6 +37,7 @@ from models.permisos import Permisos
 from models.usuarios_roles import usuarios_roles
 from models.rol_modulos import rol_modulos
 from models.rol_submodulos import rol_submodulos
+from models.antispam import Antispam
 
 load_dotenv()
 
@@ -53,7 +53,7 @@ cargar_datos_iniciales()
 
 bootstrap()
 
-app = FastAPI(title="API Mortadela AUTH", version="1.0.0")
+app = FastAPI(title="API INTRANET AUTH", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -67,8 +67,7 @@ app.include_router(usuarios_router)
 app.include_router(data_usuarios_router)
 app.include_router(deshabilitar_usuario_router)
 app.include_router(habilitar_usuario_router)
-app.include_router(editar_usuario_router)
-app.include_router(crear_usuario_router)
+app.include_router(crear_o_editar_usuario_router)
 app.include_router(login_router)
 app.include_router(cambiar_pass_router)
 app.include_router(reset_password_router)
@@ -76,7 +75,3 @@ app.include_router(bootstrap_router)
 app.include_router(recuperacion_check_router)
 app.include_router(accesos_produccion_router)
 app.include_router(crear_usuario_produccion_router)
-
-@app.get("/")
-def hola():
-    return {"mensaje": "API AUTH"}

@@ -14,7 +14,7 @@ class Usuarios(Base):
     apellido = Column(String(100), nullable=False)
     password_hash = Column(String(255), nullable=True)
     habilitado = Column(Boolean, nullable=False, default=True)
-    legajo = Column(Integer, nullable=False)
+    legajo = Column(Integer, nullable=False, unique=True)
     dni = Column(Integer, nullable=True)
     cambiar_contra = Column(Boolean, nullable=False, default=False)
 

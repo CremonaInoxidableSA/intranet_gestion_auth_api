@@ -6,6 +6,7 @@ from typing import Dict, Any, Optional, cast
 import aiohttp
 import asyncio
 import os
+from datetime import datetime, timedelta
 
 router = APIRouter(tags=["usuarios"])
 
@@ -53,6 +54,24 @@ async def check_user_email(data: RecuperacionRequest, background_tasks: Backgrou
     user = cast(Optional[Dict[str, Any]], cursor.fetchone())
 
     if user:
+      # Verificar si existe una solicitud de recuperación en los últimos 30 minutos
+      thirty_minutes_ago = datetime.now() - timedelta(minutes=30)
+      
+      cursor.execute(
+        "SELECT id FROM antispam WHERE accion = %s AND correo = %s AND fecha > %s",
+        ("recuperacion", str(user["email"]), thirty_minutes_ago)
+      )
+      recent_recovery = cursor.fetchone()
+      
+      if recent_recovery:
+        return JSONResponse(
+          content={
+            "success": False,
+            "error": "Ya realizó una consulta hace menos de 30 minutos"
+          },
+          status_code=429
+        )
+      
       # Enviar email en background (no bloquea la respuesta)
       background_tasks.add_task(
         send_recovery_email,
@@ -60,6 +79,13 @@ async def check_user_email(data: RecuperacionRequest, background_tasks: Backgrou
         apellido=str(user["apellido"]),
         email=str(user["email"])
       )
+      
+      # Registrar en tabla antispam
+      cursor.execute(
+        "INSERT INTO antispam (accion, fecha, correo) VALUES (%s, %s, %s)",
+        ("recuperacion", datetime.now(), str(user["email"]))
+      )
+      conn.commit()
       
       return JSONResponse(
         content={
