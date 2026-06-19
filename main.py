@@ -9,6 +9,8 @@ from routes.get.usuarios import router as usuarios_router
 from routes.get.data_usuarios import router as data_usuarios_router
 from routes.get.recuperacion_check import router as recuperacion_check_router
 
+from routes.get.roles import router as roles_router
+
 from routes.set.deshabilitar_usuario import router as deshabilitar_usuario_router
 from routes.set.habilitar_usuario import router as habilitar_usuario_router
 
@@ -22,6 +24,7 @@ from routes.bootstrap import router as bootstrap_router
 
 from routes.produccion.accesos_produccion import router as accesos_produccion_router
 from routes.produccion.crear_usuario_produccion import router as crear_usuario_produccion_router
+from routes.produccion.obtener_usuarios_produccion import router as obtener_usuarios_produccion_router
 
 import os
 
@@ -64,6 +67,7 @@ app.add_middleware(
 )
 
 app.include_router(usuarios_router)
+app.include_router(roles_router)
 app.include_router(data_usuarios_router)
 app.include_router(deshabilitar_usuario_router)
 app.include_router(habilitar_usuario_router)
@@ -75,3 +79,4 @@ app.include_router(bootstrap_router)
 app.include_router(recuperacion_check_router)
 app.include_router(accesos_produccion_router)
 app.include_router(crear_usuario_produccion_router)
+app.include_router(obtener_usuarios_produccion_router)
