@@ -9,6 +9,7 @@ class OperarioResponse(BaseModel):
     id_operario: int
     nombre: str
     apellido: str
+    habilitado: bool
 
 @router.post("/obtener_usuarios_produccion")
 def obtener_usuarios_produccion() -> List[OperarioResponse]:
@@ -17,10 +18,10 @@ def obtener_usuarios_produccion() -> List[OperarioResponse]:
 
     # Obtener todos los usuarios de producción (rol_id 3 o 4) habilitados
     cursor.execute(
-        """SELECT DISTINCT u.id, u.nombre, u.apellido
+        """SELECT DISTINCT u.id, u.nombre, u.apellido, u.habilitado
            FROM usuarios u
            JOIN usuarios_roles ur ON u.id = ur.usuario_id
-           WHERE ur.rol_id IN (3, 4) AND u.habilitado = true"""
+           WHERE ur.rol_id IN (3, 4)"""
     )
     usuarios_db = cursor.fetchall()
 
@@ -35,7 +36,8 @@ def obtener_usuarios_produccion() -> List[OperarioResponse]:
         usuarios_response.append(OperarioResponse(
             id_operario=usuario["id"],
             nombre=usuario["nombre"],
-            apellido=usuario["apellido"]
+            apellido=usuario["apellido"],
+            habilitado=usuario["habilitado"]
         ))
 
     cursor.close()
