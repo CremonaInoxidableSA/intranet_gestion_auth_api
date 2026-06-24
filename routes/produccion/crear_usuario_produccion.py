@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Literal
 from database import get_connection
+from routes.produccion.notificaciones import notificar_nuevo_encargado
 
 router = APIRouter(tags=["produccion"])
 
@@ -14,19 +15,19 @@ class CrearUsuarioProduccion(BaseModel):
     nombre: str
     apellido: str
     legajo: int
-    rol: Literal["encargado", "operario"]
+    rol: Literal["encargado-produccion", "operario"]
 
 @router.post("/crear_usuario_produccion", response_model=ApiResponse)
-def crear_usuario_produccion(data: CrearUsuarioProduccion) -> ApiResponse:
+async def crear_usuario_produccion(data: CrearUsuarioProduccion) -> ApiResponse:
     # Mapear rol a rol_id
     rol_mapping = {
-        "encargado": 3,
+        "encargado-produccion": 3,
         "operario": 4
     }
     rol_id = rol_mapping.get(data.rol)
     
     if not rol_id:
-        raise HTTPException(status_code=400, detail="Rol inválido. Use 'encargado' o 'operario'")
+        raise HTTPException(status_code=400, detail="Rol inválido. Use 'encargado-produccion' o 'operario'")
 
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -82,6 +83,15 @@ def crear_usuario_produccion(data: CrearUsuarioProduccion) -> ApiResponse:
     )
 
     conn.commit()
+    
+    # Si el rol es encargado-produccion, enviar notificación
+    if data.rol == "encargado-produccion":
+        await notificar_nuevo_encargado(
+            data.nombre,
+            data.apellido,
+            data.legajo
+        )
+    
     cursor.close()
     conn.close()
 

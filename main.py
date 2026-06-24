@@ -27,6 +27,7 @@ from routes.general.bloqueo_modular import router as bloqueo_modular_router
 
 from routes.produccion.crear_usuario_produccion import router as crear_usuario_produccion_router
 from routes.produccion.obtener_usuarios_produccion import router as obtener_usuarios_produccion_router
+from routes.produccion.editar_usuario_produccion import router as editar_usuario_produccion_router
 from routes.produccion.accesos_produccion import router as accesos_produccion_router
 
 import os
@@ -84,5 +85,6 @@ app.include_router(recuperacion_check_router)
 app.include_router(accesos_router)
 app.include_router(crear_usuario_produccion_router)
 app.include_router(obtener_usuarios_produccion_router)
+app.include_router(editar_usuario_produccion_router)
 app.include_router(accesos_produccion_router)
 app.include_router(bloqueo_modular_router)
