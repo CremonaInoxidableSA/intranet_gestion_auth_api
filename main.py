@@ -22,9 +22,12 @@ from routes.auth.reset_password import router as reset_password_router
 
 from routes.bootstrap import router as bootstrap_router
 
-from routes.produccion.accesos_produccion import router as accesos_produccion_router
+from routes.general.accesos import router as accesos_router
+from routes.general.bloqueo_modular import router as bloqueo_modular_router
+
 from routes.produccion.crear_usuario_produccion import router as crear_usuario_produccion_router
 from routes.produccion.obtener_usuarios_produccion import router as obtener_usuarios_produccion_router
+from routes.produccion.accesos_produccion import router as accesos_produccion_router
 
 import os
 
@@ -41,6 +44,7 @@ from models.usuarios_roles import usuarios_roles
 from models.rol_modulos import rol_modulos
 from models.rol_submodulos import rol_submodulos
 from models.antispam import Antispam
+from models.usuarios_bloqueados import usuarios_bloqueados
 
 load_dotenv()
 
@@ -77,6 +81,8 @@ app.include_router(cambiar_pass_router)
 app.include_router(reset_password_router)
 app.include_router(bootstrap_router)
 app.include_router(recuperacion_check_router)
-app.include_router(accesos_produccion_router)
+app.include_router(accesos_router)
 app.include_router(crear_usuario_produccion_router)
 app.include_router(obtener_usuarios_produccion_router)
+app.include_router(accesos_produccion_router)
+app.include_router(bloqueo_modular_router)

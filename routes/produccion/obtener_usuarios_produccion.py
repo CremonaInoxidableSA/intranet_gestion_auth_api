@@ -11,7 +11,7 @@ class OperarioResponse(BaseModel):
     apellido: str
     habilitado: bool
 
-@router.post("/obtener_usuarios_produccion")
+@router.get("/obtener_usuarios_produccion")
 def obtener_usuarios_produccion() -> List[OperarioResponse]:
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)

@@ -3,12 +3,11 @@ from database import get_connection
 from auth import get_current_user, TokenUser
 from typing import Optional
 
-router = APIRouter(tags=["produccion"])
+router = APIRouter(tags=["general"])
 
-MODULO_PRODUCCION_ID = 4
 
-@router.get("/accesos-produccion")
-def obtener_accesos_produccion(
+@router.get("/accesos")
+def obtener_accesos(
     user_id: int = Query(..., description="ID del usuario para el cual obtener accesos"),
     current_user: Optional[TokenUser] = Depends(get_current_user)
 ):
@@ -61,8 +60,8 @@ def obtener_accesos_produccion(
             cursor.close()
             conn.close()
             return {
-                "modulos": [],
-                "submodulos": []
+                "user_id": user_id,
+                "modulos": []
             }
         
         roles_ids = tuple(rol['rol_id'] for rol in roles_resultado)
@@ -73,16 +72,7 @@ def obtener_accesos_produccion(
         bloqueados_resultado = cursor.fetchall()
         modulos_bloqueados = set(bl['modulo_id'] for bl in bloqueados_resultado)
         
-        # Si el módulo de producción está bloqueado, retornar BLOQUEADO
-        if MODULO_PRODUCCION_ID in modulos_bloqueados:
-            cursor.close()
-            conn.close()
-            
-            return {
-                "estado": "BLOQUEADO"
-            }
-        
-        # Consulta para obtener el módulo de producción con sus permisos
+        # Consulta para obtener módulos del usuario con sus permisos
         # Ordena por prioridad para seleccionar el permiso con menor prioridad
         query_modulos = f"""
             SELECT 
@@ -94,31 +84,11 @@ def obtener_accesos_produccion(
             FROM modulos m
             LEFT JOIN rol_modulos rm ON m.id = rm.modulo_id
             LEFT JOIN permisos p ON rm.permiso_id = p.id
-            WHERE m.id = %s AND rm.rol_id IN ({','.join(['%s']*len(roles_ids))})
+            WHERE rm.rol_id IN ({','.join(['%s']*len(roles_ids))})
             ORDER BY m.id, p.prioridad ASC
         """
-        cursor.execute(query_modulos, (MODULO_PRODUCCION_ID, *roles_ids))
+        cursor.execute(query_modulos, roles_ids)
         modulos_resultado = cursor.fetchall()
-
-        # Consulta para obtener submódulos del módulo de producción con sus permisos
-        query_submodulos = f"""
-            SELECT 
-                s.id,
-                s.nombre as submodulo_nombre,
-                s.path as submodulo_path,
-                s.modulo_id,
-                m.nombre as modulo_padre_nombre,
-                p.nombre as permiso_nombre,
-                p.prioridad
-            FROM submodulos s
-            LEFT JOIN modulos m ON s.modulo_id = m.id
-            LEFT JOIN rol_submodulos rs ON s.id = rs.submodulo_id
-            LEFT JOIN permisos p ON rs.permiso_id = p.id
-            WHERE s.modulo_id = %s AND rs.rol_id IN ({','.join(['%s']*len(roles_ids))})
-            ORDER BY s.id, p.prioridad ASC
-        """
-        cursor.execute(query_submodulos, (MODULO_PRODUCCION_ID, *roles_ids))
-        submodulos_resultado = cursor.fetchall()
 
         # Organizar datos con prioridad - seleccionar el permiso de menor prioridad
         # O BLOQUEADO si el módulo está bloqueado
@@ -140,38 +110,14 @@ def obtener_accesos_produccion(
             elif modulo['permiso_nombre'] and not modulos_dict[modulo_id]["permisos"]:
                 modulos_dict[modulo_id]["permisos"].append(modulo['permiso_nombre'])
 
-        submodulos_dict = {}
-        for submodulo in submodulos_resultado:
-            submodulo_id = submodulo['id']
-            if submodulo_id not in submodulos_dict:
-                submodulos_dict[submodulo_id] = {
-                    "id": submodulo_id,
-                    "nombre": submodulo['submodulo_nombre'],
-                    "path": submodulo['submodulo_path'],
-                    "modulo_padre": {
-                        "id": submodulo['modulo_id'],
-                        "nombre": submodulo['modulo_padre_nombre']
-                    },
-                    "permisos": []
-                }
-            
-            # Si el módulo padre está bloqueado, marcar submódulo como BLOQUEADO
-            if submodulo['modulo_id'] in modulos_bloqueados:
-                submodulos_dict[submodulo_id]["permisos"] = ["BLOQUEADO"]
-            # Si no está bloqueado, agregar el permiso de menor prioridad
-            elif submodulo['permiso_nombre'] and not submodulos_dict[submodulo_id]["permisos"]:
-                submodulos_dict[submodulo_id]["permisos"].append(submodulo['permiso_nombre'])
-
         # Convertir a listas ordenadas
         modulos_lista = sorted(modulos_dict.values(), key=lambda x: x['id'])
-        submodulos_lista = sorted(submodulos_dict.values(), key=lambda x: x['id'])
 
         cursor.close()
         conn.close()
 
         return {
-            "modulos": modulos_lista,
-            "submodulos": submodulos_lista
+            "modulos": modulos_lista
         }
 
     except Exception as e:
