@@ -55,4 +55,11 @@ def obtener_encargados_produccion() -> List[EncargadosResponse]:
     cursor.close()
     conn.close()
 
+    usuarios_response.insert(0, EncargadosResponse(
+        id_operario=0,
+        nombre="Todos los encargados",
+        apellido="",
+        legajo=0
+    ))
+
     return usuarios_response
