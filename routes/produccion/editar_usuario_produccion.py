@@ -8,7 +8,7 @@ router = APIRouter(tags=["produccion"])
 
 class ApiResponse(BaseModel):
     success: bool
-    message: Optional[str] = None
+    detail: Optional[str] = None
 
 class EditarUsuarioProduccion(BaseModel):
     current_user_id: int
@@ -18,7 +18,7 @@ class EditarUsuarioProduccion(BaseModel):
     viejo_rol_nombre: str
     rol_nombre: str
 
-@router.post("/editar_usuario_produccion", response_model=ApiResponse)
+@router.put("/editar_usuario_produccion", response_model=ApiResponse)
 async def editar_usuario_produccion(data: EditarUsuarioProduccion) -> ApiResponse:
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
@@ -135,7 +135,7 @@ async def editar_usuario_produccion(data: EditarUsuarioProduccion) -> ApiRespons
 
         return ApiResponse(
             success=True,
-            message="Usuario de producción actualizado exitosamente"
+            detail="Usuario de producción actualizado exitosamente"
         )
 
     except HTTPException:
