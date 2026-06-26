@@ -21,7 +21,7 @@ class OperarioResponse(BaseModel):
     rol_nombre: str
     habilitado: bool
 
-@router.get("/obtener_usuarios_produccion")
+@router.get("/obtener-usuarios-produccion")
 def obtener_usuarios_produccion() -> List[OperarioResponse]:
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)

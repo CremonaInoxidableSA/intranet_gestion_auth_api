@@ -18,7 +18,7 @@ class EditarUsuarioProduccion(BaseModel):
     viejo_rol_nombre: str
     rol_nombre: str
 
-@router.put("/editar_usuario_produccion", response_model=ApiResponse)
+@router.put("/editar-usuario-produccion", response_model=ApiResponse)
 async def editar_usuario_produccion(data: EditarUsuarioProduccion) -> ApiResponse:
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)

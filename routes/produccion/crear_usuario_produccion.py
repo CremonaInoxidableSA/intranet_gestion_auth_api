@@ -17,7 +17,7 @@ class CrearUsuarioProduccion(BaseModel):
     legajo: int
     rol: Literal["encargado-produccion", "operario"]
 
-@router.post("/crear_usuario_produccion", response_model=ApiResponse)
+@router.post("/crear-usuario-produccion", response_model=ApiResponse)
 async def crear_usuario_produccion(data: CrearUsuarioProduccion) -> ApiResponse:
     # Mapear rol a rol_id
     rol_mapping = {

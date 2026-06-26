@@ -17,7 +17,7 @@ Estos archivos contienen `current_user_id` como parámetro JSON que debe ser ree
    - Por: `current_user: TokenUser = Depends(get_current_user)` en la función
    - Usar: `current_user.get("id")` en lugar de `data.current_user_id`
 
-3. **routes/produccion/crear_usuario_produccion.py**
+3. **routes/produccion/crear-usuario-produccion.py**
    - Cambiar: `current_user_id: int` en `CrearUsuarioProduccion`
    - Por: `current_user: TokenUser = Depends(get_current_user)` en la función
    - Usar: `current_user.get("id")` en lugar de `data.current_user_id`
