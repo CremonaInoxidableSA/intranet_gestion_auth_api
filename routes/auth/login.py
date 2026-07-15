@@ -22,7 +22,12 @@ def login(credentials: LoginRequest, response: Response) -> Any:
 
     try:
         cursor.execute(
-            "SELECT username, password_hash, rol, habilitado, email, nombre, apellido, reporte FROM Usuarios WHERE username = %s OR email = %s",
+            """SELECT u.id, u.username, u.password_hash, r.nombre as rol, u.habilitado, u.email, u.nombre, u.apellido
+               FROM Usuarios u
+               LEFT JOIN usuarios_roles ur ON u.id = ur.usuario_id
+               LEFT JOIN roles r ON ur.rol_id = r.id
+               WHERE u.username = %s OR u.email = %s
+               LIMIT 1""",
             (credentials.username, credentials.username),
         )
         user = cursor.fetchone()
@@ -39,10 +44,13 @@ def login(credentials: LoginRequest, response: Response) -> Any:
         if not password_hash or not isinstance(password_hash, str):
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Formato inválido de password en la base de datos")
 
-        password_matches = bcrypt.checkpw(
-            credentials.password.encode("utf-8"),
-            password_hash.encode("utf-8"),
-        )
+        try:
+            password_matches = bcrypt.checkpw(
+                credentials.password.encode("utf-8"),
+                password_hash.encode("utf-8") if isinstance(password_hash, str) else password_hash,
+            )
+        except ValueError:
+            return JSONResponse(content={"success": False, "error": "Credenciales inválidas"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
         if not password_matches:
             return JSONResponse(content={"success": False, "error": "Credenciales inválidas"}, status_code=status.HTTP_401_UNAUTHORIZED)
@@ -73,13 +81,12 @@ def login(credentials: LoginRequest, response: Response) -> Any:
         )
 
         user_payload = {
+            "id": user.get("id"),
             "username": user.get("username"),
             "email": user.get("email"),
             "nombre": user.get("nombre"),
             "apellido": user.get("apellido"),
-            "rol": user.get("rol"),
-            "habilitado": user.get("habilitado"),
-            "reporte": user.get("reporte"),
+            "rol": user.get("rol")
         }
 
         return {"success": True, "data": {"token": token, "user": user_payload}}
@@ -107,7 +114,12 @@ def check(request: Request) -> Dict[str, Any]:
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute(
-            "SELECT username, email, nombre, apellido, rol, habilitado, reporte FROM Usuarios WHERE username = %s",
+            """SELECT u.username, u.email, u.nombre, u.apellido, r.nombre as rol, u.habilitado
+               FROM Usuarios u
+               LEFT JOIN usuarios_roles ur ON u.id = ur.usuario_id
+               LEFT JOIN roles r ON ur.rol_id = r.id
+               WHERE u.username = %s
+               LIMIT 1""",
             (username,),
         )
         user = cursor.fetchone()

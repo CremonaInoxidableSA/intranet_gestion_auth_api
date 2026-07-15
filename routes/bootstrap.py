@@ -36,7 +36,7 @@ def create_superadmin(data: CrearSuperAdmin) -> BootstrapResponse:
 
     try:
         cursor.execute(
-            "SELECT 1 FROM Usuarios WHERE username = %s OR email = %s",
+            "SELECT 1 FROM usuarios WHERE username = %s OR email = %s",
             (data.username, data.email)
         )
 
@@ -53,20 +53,32 @@ def create_superadmin(data: CrearSuperAdmin) -> BootstrapResponse:
 
         cursor.execute(
             """
-            INSERT INTO Usuarios
-            (email, username, nombre, apellido, rol, password_hash, habilitado, reporte)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO usuarios
+            (email, username, nombre, apellido, password_hash, habilitado, cambiar_contra)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 data.email,
                 data.username,
                 data.nombre,
                 data.apellido,
-                "superadmin",
                 hashed_password,
                 True,
-                True
+                False
             )
+        )
+
+        # Obtener el ID del usuario recién creado
+        usuario_id = cursor.lastrowid
+
+        # Asignar el rol superadmin (id = 1) al usuario
+        cursor.execute(
+            """
+            INSERT INTO usuarios_roles
+            (usuario_id, rol_id)
+            VALUES (%s, %s)
+            """,
+            (usuario_id, 1)
         )
 
         conn.commit()

@@ -57,7 +57,7 @@ with create_engine(
     print(f"✓ Base de datos '{os.getenv('DB_NAME')}' verificada o creada exitosamente")
 
 db.Base.metadata.drop_all(bind=db.engine)
-db.Base.metadata.create_all(bind=db.engine)
+#db.Base.metadata.create_all(bind=db.engine)
 cargar_datos_iniciales()
 
 bootstrap()
