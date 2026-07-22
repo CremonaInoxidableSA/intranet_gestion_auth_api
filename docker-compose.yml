@@ -34,8 +34,7 @@ services:
     networks:
       - intranet_gestion_auth_network
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       DB_HOST: db
 
