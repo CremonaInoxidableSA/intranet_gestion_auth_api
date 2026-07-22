@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: api
+    restart: unless-stopped
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    volumes:
+      - /home/ec2-user/.aws:/root/.aws:ro
+    networks:
+      - intranet_gestion_auth_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy-api
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    networks:
+      - intranet_gestion_auth_network
+    depends_on:
+      - api
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot-api
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+networks:
+  intranet_gestion_auth_network:
+    external: true
