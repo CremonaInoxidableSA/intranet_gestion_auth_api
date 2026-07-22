@@ -17,7 +17,7 @@ class DatosUsuarioResponse(BaseModel):
     apellido: str
     roles: list[str]
     habilitado: bool
-    legajo: int
+    legajo: Optional[int]
     dni: Optional[int]
     cambiar_contra: bool
 
@@ -85,7 +85,7 @@ def obtener_datos_usuario(data: DatosUsuarioRequest) -> DatosUsuarioResponse:
             apellido=usuario["apellido"],
             roles=roles,
             habilitado=bool(usuario["habilitado"]),
-            legajo=int(usuario["legajo"]),
+            legajo=int(usuario["legajo"]) if usuario["legajo"] is not None else None,
             dni=usuario["dni"],
             cambiar_contra=bool(usuario["cambiar_contra"])
         )

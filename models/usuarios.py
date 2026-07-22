@@ -16,6 +16,6 @@ class Usuarios(Base):
     habilitado = Column(Boolean, nullable=False, default=True)
     legajo = Column(Integer, nullable=True, unique=True)
     dni = Column(Integer, nullable=True)
-    cambiar_contra = Column(Boolean, nullable=False, default=False)
+    cambiar_contra = Column(Boolean, nullable=True, default=False)
 
     roles = relationship("Roles", secondary=usuarios_roles, back_populates="usuarios")

@@ -9,6 +9,7 @@ class ObtenerUsuariosRequest(BaseModel):
     current_user_id: int
 
 class UsuarioResponse(BaseModel):
+    id: int
     email: Optional[str]
     username: Optional[str]
     nombre: str
@@ -60,6 +61,7 @@ def obtener_usuarios(data: ObtenerUsuariosRequest) -> List[UsuarioResponse]:
         roles = [row["nombre"] for row in roles_result] if roles_result else []
 
         usuarios_response.append(UsuarioResponse(
+            id=usuario["id"],
             email=usuario["email"],
             username=usuario["username"],
             nombre=usuario["nombre"],
